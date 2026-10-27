@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #e8edf5;
+  background: #070a0f;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --accent: #c6f36b;
+  --cyan: #51d9ff;
+  --muted: #8290a3;
+  --panel: rgba(16, 22, 32, .78);
+  --line: rgba(166, 190, 219, .12);
+}
+
+* { box-sizing: border-box; }
+html { min-width: 320px; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 75% -10%, rgba(81, 217, 255, .10), transparent 34%),
+              radial-gradient(ellipse at 0% 35%, rgba(198, 243, 107, .055), transparent 32%), #070a0f;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .22;
+  background-image: linear-gradient(rgba(150, 180, 210, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(150, 180, 210, .045) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black, transparent 88%);
+}
+#root { position: relative; z-index: 1; min-height: 100vh; }
+::selection { color: #080b10; background: #c6f36b; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: #080b10; }
+::-webkit-scrollbar-thumb { background: #263140; border: 2px solid #080b10; border-radius: 20px; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Give the existing app panels a consistent premium glass finish. */
+article, main section > div[class*="rounded-2xl"], aside > div[class*="rounded-2xl"] {
+  transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease, transform .25s ease;
+}
+article[class*="bg-\[#111722\]"] {
+  background: linear-gradient(145deg, rgba(20, 29, 42, .94), rgba(12, 17, 26, .92));
+  box-shadow: 0 10px 34px rgba(0, 0, 0, .13), inset 0 1px rgba(255,255,255,.025);
+}
+article[class*="bg-\[#111722\]"]:hover { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(0,0,0,.22), 0 0 0 1px rgba(198,243,107,.06); }
+aside { backdrop-filter: blur(22px); }
+header { backdrop-filter: blur(18px); }
+
+.automation-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(198, 243, 107, .16);
+  background: radial-gradient(ellipse at 90% 10%, rgba(81,217,255,.12), transparent 35%), linear-gradient(135deg, rgba(25,35,42,.96), rgba(12,17,25,.96));
+  box-shadow: 0 20px 60px rgba(0,0,0,.22), inset 0 1px rgba(255,255,255,.04);
+}
+.automation-hero::after { content:""; position:absolute; width:260px; height:260px; right:-90px; bottom:-170px; border:1px solid rgba(198,243,107,.20); border-radius:50%; box-shadow:0 0 0 24px rgba(198,243,107,.025), 0 0 0 48px rgba(198,243,107,.02); pointer-events:none; }
+.panel-glow { animation: panel-in .65s cubic-bezier(.2,.8,.2,1) both; }
+.section-kicker { color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: .22em; }
+.metric-chip { position:relative; z-index:1; border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:14px 16px; background:rgba(4,8,13,.32); }
+.metric-chip span { display:block; color:#8290a3; font-size:9px; font-weight:700; letter-spacing:.16em; }
+.metric-chip strong { display:block; margin-top:8px; color:#eaf3fb; font-size:25px; letter-spacing:-.04em; }
+.rule-card { border:1px solid rgba(255,255,255,.09); background:linear-gradient(145deg, rgba(19,26,37,.94), rgba(11,16,24,.96)); box-shadow:0 14px 36px rgba(0,0,0,.16), inset 0 1px rgba(255,255,255,.025); animation: panel-in .5s ease both; }
+.rule-card:hover { border-color:rgba(198,243,107,.24); box-shadow:0 18px 42px rgba(0,0,0,.25), 0 0 28px rgba(198,243,107,.035); }
+.rule-icon { color:var(--accent); border:1px solid rgba(198,243,107,.16); background:linear-gradient(145deg, rgba(198,243,107,.13), rgba(81,217,255,.05)); }
+.rule-name { min-width:0; }
+.field-wrap { display:block; min-width:0; border:1px solid rgba(255,255,255,.085); border-radius:12px; padding:10px 12px; background:rgba(4,8,13,.34); }
+.field-wrap > span { display:block; color:#7e8da0; font-size:10px; font-weight:650; letter-spacing:.09em; text-transform:uppercase; }
+.field-wrap select { display:block; width:100%; margin-top:8px; border:0; background:transparent; color:#e6edf5; font-size:13px; outline:none; }
+.field-wrap select option { color:#e6edf5; background:#101722; }
+.threshold-input { display:flex; align-items:center; gap:8px; margin-top:5px; }
+.threshold-input input { width:100%; min-width:0; border:0; background:transparent; color:#fff; font-size:19px; font-weight:650; outline:none; }
+.threshold-input span { color:var(--accent); font-size:11px; white-space:nowrap; }
+.action-preview { border:1px solid rgba(198,243,107,.12); background:linear-gradient(90deg, rgba(198,243,107,.055), rgba(81,217,255,.025)); }
+.status-pill { border-radius:999px; padding:5px 8px; font-size:9px; font-weight:750; letter-spacing:.08em; white-space:nowrap; }
+.status-live { color:#c6f36b; border:1px solid rgba(198,243,107,.2); background:rgba(198,243,107,.08); }
+.status-off { color:#9aa7b7; border:1px solid rgba(154,167,183,.15); background:rgba(154,167,183,.06); }
+.toggle-switch { width:42px; height:24px; flex-shrink:0; border:1px solid rgba(255,255,255,.1); border-radius:99px; padding:3px; background:#293342; transition:background .2s ease; }
+.toggle-switch span { display:block; width:16px; height:16px; border-radius:50%; background:#dce4ed; transition:transform .2s ease, background .2s ease; }
+.toggle-switch.is-on { border-color:rgba(198,243,107,.4); background:#91bd3f; }
+.toggle-switch.is-on span { transform:translateX(17px); background:#0b1015; }
+
+@keyframes panel-in { from { opacity:0; transform:translateY(9px); } to { opacity:1; transform:translateY(0); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+@media (max-width: 640px) { .automation-hero { padding:20px; } .metric-chip { padding:12px; } .metric-chip strong { font-size:22px; } }
