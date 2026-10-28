@@ -34,7 +34,7 @@ import SensorHistory from "./components/SensorHistory";
 import ClassroomStatus from "./components/ClassroomStatus";
 import SensorPage from "./pages/SensorPage";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL;
+const BACKEND_URL = import.meta.env.VITE_API_URL || "https://smart-class-room-backend-ic69.onrender.com";
 
 const initialState = {
   temperature: "--",
@@ -405,22 +405,33 @@ function AppLayout() {
     };
   }, []);
 
-  const toggleLed = (led, state) => {
-    if (!socketClient?.connected) {
-      setMessage("Backend disconnected. Please try again when it reconnects.");
-      return;
-    }
-
+  // Save the desired LED state in the backend. The ESP32 polls this endpoint
+  // and applies the command to its GPIO pins.
+  const toggleLed = async (led, state) => {
     setMessage("");
 
-    socketClient.emit("led:control", { led, state }, (response) => {
-      if (!response?.success) {
-        setMessage(response?.message || "Failed to update the light.");
-        return;
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/leds/commands`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ led, state }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.success === false) {
+        throw new Error(result.message || `Request failed (${response.status})`);
       }
 
-      setMessage(`${led.toUpperCase()} command acknowledged.`);
-    });
+      // The HTTP route may not broadcast Socket.IO updates, so reflect the
+      // accepted desired state in this browser immediately.
+      setClassroom((previous) => ({
+        ...previous,
+        leds: { ...previous.leds, [led]: state },
+      }));
+      setMessage(`${led.toUpperCase()} command saved. The ESP32 will apply it when it next checks the backend.`);
+    } catch (error) {
+      setMessage(`Could not control ${led.toUpperCase()}: ${error.message}. Check the backend URL and /api/leds/commands endpoint.`);
+    }
   };
 
   const pageInfo = {

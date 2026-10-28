@@ -4,12 +4,60 @@ import { Activity, Droplets, Sun, Thermometer, Wind } from "lucide-react";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
 
+
 const sensors = [
-  { key: "temperature", label: "Temperature", unit: "°C", icon: Thermometer },
-  { key: "humidity", label: "Humidity", unit: "%", icon: Droplets },
-  { key: "lightLevel", label: "Light level", unit: "", icon: Sun },
-  { key: "gasLevel", label: "Gas level", unit: "", icon: Wind },
+  {
+    title: 'Temperature',
+    value: sensorData.temperature == null
+      ? '--'
+      : `${sensorData.temperature}°C`,
+    subtitle: 'Room temperature',
+    icon: 'thermometer-outline',
+    color: '#C6F36B',
+  },
+  {
+    title: 'Humidity',
+    value: sensorData.humidity == null
+      ? '--'
+      : `${sensorData.humidity}%`,
+    subtitle: 'Air humidity',
+    icon: 'water-outline',
+    color: '#70D6FF',
+  },
+  {
+    title: 'Motion',
+    value: sensorData.motionDetected ? 'Detected' : 'Clear',
+    subtitle: 'Motion sensor',
+    icon: 'walk-outline',
+    color: sensorData.motionDetected ? '#FFD166' : '#C6F36B',
+  },
+  {
+    title: 'Light Level',
+    value: sensorData.lightLevel == null
+      ? '--'
+      : String(sensorData.lightLevel),
+    subtitle: 'Light intensity',
+    icon: 'sunny-outline',
+    color: '#FFD166',
+  },
+  {
+    title: 'Gas Level',
+    value: sensorData.gasLevel == null
+      ? '--'
+      : String(sensorData.gasLevel),
+    subtitle: sensorData.gasAlert ? 'Gas alert active' : 'Gas sensor reading',
+    icon: 'cloud-outline',
+    color: sensorData.gasAlert ? '#FF7777' : '#C6F36B',
+  },
+  {
+    title: 'Safety',
+    value: sensorData.gasAlert ? 'Alert' : 'Secure',
+    subtitle: sensorData.gasAlert ? 'Check gas levels' : 'No gas alert',
+    icon: 'shield-checkmark-outline',
+    color: sensorData.gasAlert ? '#FF7777' : '#C6F36B',
+  },
 ];
+
 
 export default function SensorPage() {
   const [state, setState] = useState(null);
