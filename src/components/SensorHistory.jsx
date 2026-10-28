@@ -10,7 +10,9 @@ import {
   YAxis,
 } from "recharts";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL;
+const BACKEND_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://smart-class-room-backend-ic69.onrender.com";
 
 export default function SensorHistory() {
   const [readings, setReadings] = useState([]);

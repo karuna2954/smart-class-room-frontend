@@ -34,7 +34,7 @@ import SensorHistory from "./components/SensorHistory";
 import ClassroomStatus from "./components/ClassroomStatus";
 import SensorPage from "./pages/SensorPage";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL || "https://smart-class-room-backend-ic69.onrender.com";
+const BACKEND_URL = (import.meta.env.VITE_API_URL || "https://smart-class-room-backend-ic69.onrender.com").replace(/\/$/, "");
 
 const initialState = {
   temperature: "--",
@@ -372,6 +372,42 @@ function AppLayout() {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  // Fetch current readings as well as listening for live Socket.IO updates.
+  // This ensures the dashboard can populate even if the server does not emit
+  // an initial sensor event when the browser connects.
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCurrentSensors = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/sensors/current`);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (cancelled) return;
+
+        const data = result?.data ?? result;
+        setClassroom((previous) => ({
+          ...previous,
+          ...data,
+          leds: { ...previous.leds, ...(data?.leds || {}) },
+        }));
+      } catch (error) {
+        console.error("Unable to fetch current sensor readings:", error);
+      }
+    };
+
+    fetchCurrentSensors();
+    const intervalId = window.setInterval(fetchCurrentSensors, 5000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
   useEffect(() => {
     const socket = io(BACKEND_URL, {
       transports: ["websocket", "polling"],
@@ -405,33 +441,22 @@ function AppLayout() {
     };
   }, []);
 
-  // Save the desired LED state in the backend. The ESP32 polls this endpoint
-  // and applies the command to its GPIO pins.
-  const toggleLed = async (led, state) => {
+  const toggleLed = (led, state) => {
+    if (!socketClient?.connected) {
+      setMessage("Backend disconnected. Please try again when it reconnects.");
+      return;
+    }
+
     setMessage("");
 
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/leds/commands`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ led, state }),
-      });
-
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || result.success === false) {
-        throw new Error(result.message || `Request failed (${response.status})`);
+    socketClient.emit("led:control", { led, state }, (response) => {
+      if (!response?.success) {
+        setMessage(response?.message || "Failed to update the light.");
+        return;
       }
 
-      // The HTTP route may not broadcast Socket.IO updates, so reflect the
-      // accepted desired state in this browser immediately.
-      setClassroom((previous) => ({
-        ...previous,
-        leds: { ...previous.leds, [led]: state },
-      }));
-      setMessage(`${led.toUpperCase()} command saved. The ESP32 will apply it when it next checks the backend.`);
-    } catch (error) {
-      setMessage(`Could not control ${led.toUpperCase()}: ${error.message}. Check the backend URL and /api/leds/commands endpoint.`);
-    }
+      setMessage(`${led.toUpperCase()} command acknowledged.`);
+    });
   };
 
   const pageInfo = {
